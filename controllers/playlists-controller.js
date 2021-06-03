@@ -13,7 +13,7 @@ const getPlaylistById = async (req, res, next) => {
     try {
         user = await User.findById(req.userData.userId);
     } catch (err) {
-        const error = new HttpError("Could not get user");
+        const error = new HttpError("Could not get user", 500);
         return next(error);
     }
 
@@ -25,9 +25,10 @@ const getPlaylistById = async (req, res, next) => {
     }
 
     if (playlistTracks.owner.toString() !== user._id.toString()) {
-        const error = new HttpError("You dont have permission", 401);
+        const error = new HttpError("You dont have permission", 403);
         return next(error);
     }
+
     return res.json({
         playlist: {
             playlistName: playlistTracks.name,
@@ -226,7 +227,7 @@ const updatePlaylist = async (req, res, next) => {
     }
 
     if (updatedPlaylist.owner.toString() !== foundUser._id.toString()) {
-        const error = new HttpError("You dont have permission", 401);
+        const error = new HttpError("You dont have permission", 403);
         return next(error);
     }
 
@@ -273,7 +274,7 @@ const deletePlaylist = async (req, res, next) => {
     }
 
     if (playlist.owner.toString() !== foundUser._id.toString()) {
-        const error = new HttpError("You dont have permission", 401);
+        const error = new HttpError("You dont have permission", 403);
         return next(error);
     }
 

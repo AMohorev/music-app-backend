@@ -1,3 +1,5 @@
+const fs = require('fs');
+
 const HttpError = require("../models/HttpError");
 const Category = require("../models/category");
 const Audio = require("../models/audio");
@@ -87,12 +89,12 @@ const postAudioIntoCategory = async (req, res, next) => {
     try {
         user = await User.findById(req.userData.userId);
     } catch (err) {
-        const error = new HttpError("Could not get user");
+        const error = new HttpError("Could not get user", 500);
         return next(error);
     }
 
     if (user.role !== 'admin') {
-        const error = new HttpError('You dont have permission to do that');
+        const error = new HttpError('You dont have permission to do that', 403);
         return next(error);
     }
 
@@ -145,12 +147,12 @@ const updateCategory = async (req, res, next) => {
     try {
         user = await User.findById(req.userData.userId);
     } catch (err) {
-        const error = new HttpError("Could not get user");
+        const error = new HttpError("Could not get user", 500);
         return next(error);
     }
 
     if (user.role !== 'admin') {
-        const error = new HttpError('You dont have permission to do that');
+        const error = new HttpError('You dont have permission to do that', 403);
         return next(error);
     }
 
@@ -186,17 +188,17 @@ const deleteCategory = async (req, res, next) => {
     try {
         user = await User.findById(req.userData.userId);
     } catch (err) {
-        const error = new HttpError("Could not get user");
+        const error = new HttpError("Could not get user", 500);
         return next(error);
     }
 
     if (user.role !== 'admin') {
-        const error = new HttpError('You dont have permission to do that');
+        const error = new HttpError('You dont have permission to do that', 403);
         return next(error);
     }
 
     try {
-        category = await Category.findById(ctgId);
+        category = await Category.findById(ctgId).populate("tracks");
     } catch (err) {
         const error = new HttpError("Could not find category", 500);
         return next(error);
@@ -208,6 +210,10 @@ const deleteCategory = async (req, res, next) => {
 
     try {
         if (category.tracks.length) {
+            for (let i = 0; i < category.tracks.length; i++) {
+                fs.unlink(category.tracks[i]["track"], err => console.log(err));
+                fs.unlink(category.tracks[i]["image"], err => console.log(err));
+            }
             await Audio.deleteMany({ _id: { $in: category.tracks } });
         }
         await Category.findByIdAndDelete(ctgId);

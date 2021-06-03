@@ -57,12 +57,12 @@ const updateAudio = async (req, res, next) => {
     try {
         user = await User.findById(req.userData.userId);
     } catch (err) {
-        const error = new HttpError("Could not get user for update");
+        const error = new HttpError("Could not get user for update", 500);
         return next(error);
     }
 
     if (user.role !== 'admin') {
-        const error = new HttpError('You dont have permission to do that');
+        const error = new HttpError('You dont have permission to do that', 403);
         return next(error);
     }
 
@@ -96,12 +96,12 @@ const deleteAudio = async (req, res, next) => {
     try {
         user = await User.findById(req.userData.userId);
     } catch (err) {
-        const error = new HttpError("Could not get user for delete");
+        const error = new HttpError("Could not get user for delete", 500);
         return next(error);
     }
 
     if (user.role !== 'admin') {
-        const error = new HttpError('You dont have permission to do that');
+        const error = new HttpError('You dont have permission to do that', 403);
         return next(error);
     }
 

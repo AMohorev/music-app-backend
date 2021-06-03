@@ -18,7 +18,7 @@ const getUsers = async (req, res, next) => {
     }
 
     if (user.role !== "admin") {
-        const error = new HttpError("You dont have permission to do that", 406);
+        const error = new HttpError("You dont have permission to do that", 403);
         return next(error);
     }
 
@@ -123,7 +123,7 @@ const login = async (req, res, next) => {
     }
 
     if (existingUser.isBanned === true) {
-        const error = new HttpError("You have been banned", 401);
+        const error = new HttpError("You have been banned", 403);
         return next(error);
     }
 
@@ -175,12 +175,12 @@ const banUser = async (req, res, next) => {
     }
 
     if (user.role !== "admin") {
-        const error = new HttpError("You dont have permission to do that", 406);
+        const error = new HttpError("You dont have permission to do that", 403);
         return next(error);
     }
 
     if (user._id.toString() === userId.toString() && type === "ban") {
-        const error = new HttpError("You cant block yourself", 406);
+        const error = new HttpError("You cant block yourself", 422);
         return next(error);
     }
 
@@ -255,12 +255,12 @@ const editUser = async (req, res, next) => {
     try {
         user = await User.findById(req.userData.userId);
     } catch (err) {
-        const error = new HttpError("Could not get user");
+        const error = new HttpError("Could not get user", 500);
         return next(error);
     }
 
     if (user.role !== 'admin') {
-        const error = new HttpError('You dont have permission to do that');
+        const error = new HttpError('You dont have permission to do that', 403);
         return next(error);
     }
 
@@ -274,7 +274,7 @@ const editUser = async (req, res, next) => {
     try {
         updatedUser = await User.findById(userId);
     } catch (err) {
-        const error = new HttpError("Could not get user");
+        const error = new HttpError("Could not get user", 500);
         return next(error);
     }
 
