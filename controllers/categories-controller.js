@@ -4,6 +4,7 @@ const HttpError = require("../models/HttpError");
 const Category = require("../models/category");
 const Audio = require("../models/audio");
 const User = require('../models/user');
+const Playlist = require("../models/playlist");
 
 const getCategories = async (req, res, next) => {
     let categories;
@@ -213,6 +214,7 @@ const deleteCategory = async (req, res, next) => {
             for (let i = 0; i < category.tracks.length; i++) {
                 fs.unlink(category.tracks[i]["track"], err => console.log(err));
                 fs.unlink(category.tracks[i]["image"], err => console.log(err));
+                await Playlist.updateMany({}, { $pull: { tracks: category.tracks[i]["_id"] } });
             }
             await Audio.deleteMany({ _id: { $in: category.tracks } });
         }
